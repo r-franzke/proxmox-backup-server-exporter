@@ -1,0 +1,9 @@
+{
+    "name": "proxmox-backup-server-exporter",
+    "description": "A Prometheus exporter for the Proxmox Backup Server",
+    "version": "0.0.1",
+    "private": true,
+    "release": {
+      "branches": ["main"]
+    }
+  }

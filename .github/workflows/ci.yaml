@@ -1,0 +1,80 @@
+---
+name: CI
+
+on:
+  push:
+    branches-ignore:
+    # There it is already too late...
+    - develop
+    - main
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+    - uses: Swatinem/rust-cache@v1
+      with:
+        sharedKey: build
+    - uses: actions-rs/cargo@v1
+      with:
+        command: build
+
+  clippy:
+    name: Clippy
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        components: clippy
+    - uses: Swatinem/rust-cache@v1
+      with:
+        sharedKey: build
+    - uses: actions-rs/clippy-check@v1
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+  rustfmt:
+    name: Rust Linting
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        components: rustfmt
+    - uses: Swatinem/rust-cache@v1
+      with:
+        sharedKey: build
+    - uses: actions-rs/cargo@v1
+      with:
+        command: fmt
+        args: --all -- --check
+
+  docker-lint:
+    name: Dockerfile Linting
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2 
+    - uses: hadolint/hadolint-action@v2.1.0
+      with:
+        dockerfile: Dockerfile
+
+  docker:
+    name: Image
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build
+      run: docker build .
