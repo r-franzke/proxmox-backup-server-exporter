@@ -7,17 +7,18 @@ on:
 
 jobs:
   generate-tag:
-  - name: Checkout
-    uses: actions/checkout@v3
-  - name: Semantic Release
-    uses: cycjimmy/semantic-release-action@v3
-    id: semantic
-    with:
-      # You can select another working directory like a subdirectory for example.
-      working_directory: ./code
-    env:
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v3
+    - name: Semantic Release
+      uses: cycjimmy/semantic-release-action@v3
+      id: semantic
+      with:
+        # You can select another working directory like a subdirectory for example.
+        working_directory: ./code
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
 
   build-docker:
     runs-on: ubuntu-latest
