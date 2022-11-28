@@ -7,21 +7,46 @@ on:
 
 jobs:
   generate-tag:
-    name: Generate Tag
+  - name: Checkout
+    uses: actions/checkout@v3
+  - name: Semantic Release
+    uses: cycjimmy/semantic-release-action@v3
+    id: semantic
+    with:
+      # You can select another working directory like a subdirectory for example.
+      working_directory: ./code
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  build-docker:
     runs-on: ubuntu-latest
+    name: Production build of the Docker Image
+    if: jobs.generate-tag.steps.semantic.new_release_published == 'true'
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
+    - uses: actions/checkout@v2
+    - name: Pull
+      run: git pull
+    - name: Build the Docker image
+      run: docker build -t robertfranzke/proxmox-backup-server-exporter:$(git describe --abbrev=0 --tags)  .
+    - name: Log into registry
+      run: echo "${{ secrets.REGISTRY_PASSWORD }}" | docker login  -u ${{ secrets.REGISTRY_USER }} --password-stdin
+    - name: Push image
+      run: docker push robertfranzke/proxmox-backup-server-exporter:$(git describe --abbrev=0 --tags)
+    - name: Tag latest
+      run: docker tag robertfranzke/proxmox-backup-server-exporter:$(git describe --abbrev=0 --tags) robertfranzke/proxmox-backup-server-exporter:latest
+    - name: Push latest
+      run: docker push robertfranzke/proxmox-backup-server-exporter:latest
+
+  update-dockerhub-readme:
+    needs: build-docker
+    runs-on: ubuntu-latest
+    name: Updates the Readme on dockerhub
+    steps:
+    - uses: actions/checkout@main
+    - uses: meeDamian/sync-readme@v1.0.6
       with:
-        fetch-depth: 0
-    - name: Setup Node.js
-      uses: actions/setup-node@v1
-      with:
-        node-version: 16
-    - name: Install dependencies
-      run: npm install -g semantic-release
-    - name: Release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
-      run: semantic-release -e
+        user: ${{ secrets.REGISTRY_USER }}
+        pass: ${{ secrets.REGISTRY_PASSWORD }}
+        slug: robertfranzke/proxmox-backup-server-exporter
+        description: true
