@@ -44,3 +44,16 @@ jobs:
       run: docker tag robertfranzke/proxmox-backup-server-exporter:$(git describe --abbrev=0 --tags) robertfranzke/proxmox-backup-server-exporter:latest
     - name: Push latest
       run: docker push robertfranzke/proxmox-backup-server-exporter:latest
+
+  update-dockerhub-readme:
+    needs: build-docker
+    runs-on: ubuntu-latest
+    name: Updates the Readme on dockerhub
+    steps:
+    - uses: actions/checkout@main
+    - uses: meeDamian/sync-readme@v1.0.6
+      with:
+        user: ${{ secrets.REGISTRY_USER }}
+        pass: ${{ secrets.REGISTRY_PASSWORD }}
+        slug: robertfranzke/proxmox-backup-server-exporter
+        description: true
