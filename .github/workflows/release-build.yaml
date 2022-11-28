@@ -1,9 +1,7 @@
 name: Release Build
 on:
-  push:
-    # Pattern matched against refs/tags
-    tags:
-      - '*'
+  release:
+    types: [published]
 
 jobs:
   build-docker:
