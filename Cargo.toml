@@ -1,0 +1,16 @@
+[package]
+name = "proxmox-backup-server-exporter"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+reqwest = { version = "0.11.8", features = ["blocking"] }
+futures = "0.3" # for our async / await blocks
+tokio = { version = "1.21.2", features = ["full"] } 
+serde = { version = "1.0", features = ["derive"] }
+serde_json = { version = "1.0.87"}
+prometheus = "0.13.3"
+hyper = {version = "0.14.23", features=["server"]}
+lazy_static = "1.4.0"
