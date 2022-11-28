@@ -43,4 +43,4 @@ jobs:
     - name: Tag latest
       run: docker tag robertfranzke/proxmox-backup-server-exporter:$(git describe --abbrev=0 --tags) robertfranzke/proxmox-backup-server-exporter:latest
     - name: Push latest
-      run: robertfranzke/proxmox-backup-server-exporter:latest
+      run: docker push robertfranzke/proxmox-backup-server-exporter:latest
