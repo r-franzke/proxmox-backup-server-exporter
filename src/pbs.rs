@@ -37,7 +37,7 @@ pub fn create_client() -> Client {
 pub async fn get_status_response(client: Client) -> Result<StatusResponse, ()> {
     let base_url = env::var("BASE_URL").expect("$BASE_URL is not set");
     let result = client
-        .get(format!("{}/status/datastore-usage/", base_url))
+        .get(format!("{base_url}/status/datastore-usage/"))
         .send()
         .await;
     match result {
@@ -50,19 +50,19 @@ pub async fn get_status_response(client: Client) -> Result<StatusResponse, ()> {
                     match status_response {
                         Ok(response) => Result::Ok(response),
                         Err(error) => {
-                            println!("Failed to parse response: {}", error);
+                            println!("Failed to parse response: {error}");
                             Err(())
                         }
                     }
                 }
                 Err(error) => {
-                    println!("Failed to get response text: {}", error);
+                    println!("Failed to get response text: {error}");
                     Err(())
                 }
             }
         }
         Err(error) => {
-            println!("Failed to get response: {}", error);
+            println!("Failed to get response: {error}");
             Err(())
         }
     }
